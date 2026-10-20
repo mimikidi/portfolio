@@ -10,7 +10,7 @@ export default function Skills() {
         "Tailwind CSS",
         "TypeScript",
         "HTML5 / CSS3",
-        "Redux Toolkit",
+         ,
       ],
     },
     {
@@ -21,7 +21,7 @@ export default function Skills() {
         "Python",
         "REST APIs",
         "GraphQL",
-        "JWT Authentication",
+        
       ],
     },
     {

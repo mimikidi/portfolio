@@ -11,10 +11,10 @@
   --text-secondary: #475569;
   --text-muted: #94a3b8;
   
-  --border-color: #e2e8f0;
+  --border-color:#f1f5f9;
   --card-border: #f1f5f9;
   
-  --accent-primary: #4f46e5;
+  --accent-primary: hsl(255, 8%, 90%);
   --accent-hover: #4338ca;
   --accent-light: #eef2ff;
   --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);

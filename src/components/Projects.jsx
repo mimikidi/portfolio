@@ -1,5 +1,6 @@
 import React from "react";
-import { ExternalLink, GitBranch} from "lucide-react";
+import image1 from "../assets/image1.png";
+import { ExternalLink, GitBranch } from "lucide-react";
 
 export default function Projects() {
   const projectList = [
@@ -7,16 +8,22 @@ export default function Projects() {
       title: "SaaS Analytics Dashboard",
       desc: "A real-time metrics dashboard featuring dynamic charts, role authentication, and export utilities.",
       tags: ["React", "Tailwind", "Node.js"],
+      liveLink: "https://your-saas-demo.com", // Replace with your live demo URL
+      codeLink: "https://github.com/yourusername/saas-dashboard", // Replace with your GitHub URL
     },
     {
       title: "E-Commerce Storefront",
       desc: "Fully featured shopping portal with cart management, secure stripe checkout, and admin catalog controls.",
-      tags: ["Next.js", "MongoDB", "Stripe"],
+      tags: ["Tailwind", "React", "JavaScript"],
+      liveLink: "https://your-ecommerce-demo.com", // Replace with your live demo URL
+      codeLink: "https://github.com/yourusername/ecommerce-store", // Replace with your GitHub URL
     },
     {
       title: "AI Prompt Generator",
       desc: "An intelligent AI assistant platform leveraging LLM integrations to create contextual marketing copy.",
       tags: ["React", "OpenAI API", "Tailwind"],
+      liveLink: "https://your-ai-prompt-demo.com", // Replace with your live demo URL
+      codeLink: "https://github.com/yourusername/ai-prompt-generator", // Replace with your GitHub URL
     },
   ];
 
@@ -40,7 +47,11 @@ export default function Projects() {
             >
               <div>
                 <div className="h-48 bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold">
-                  [ Project Image ]
+                  <img
+                    src={image1}
+                    alt={project.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-bold text-slate-900 mb-2">
@@ -61,15 +72,19 @@ export default function Projects() {
                   </div>
                 </div>
               </div>
-              <div className="px-6 pb-6 pt-0 flex items-center gap-4 border-t border-slate-200/60 pt-4">
+              <div className="px-6 pb-6 pt-4 flex items-center gap-4 border-t border-slate-200/60">
                 <a
-                  href="#projects"
+                  href={project.liveLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700"
                 >
                   <ExternalLink className="w-4 h-4" /> Live Demo
                 </a>
                 <a
-                  href="#projects"
+                  href={project.codeLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-700 hover:text-slate-900"
                 >
                   <GitBranch className="w-4 h-4" /> Code

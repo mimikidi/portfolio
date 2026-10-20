@@ -2,10 +2,7 @@ import React from "react";
 import {
   Layout,
   Server,
-  Smartphone,
   Database,
-  Shield,
-  Zap,
 } from "lucide-react";
 
 export default function Services() {
@@ -24,22 +21,7 @@ export default function Services() {
       title: "Fullstack Solutions",
       desc: "End-to-end development from database design and cloud provisioning to production deployment.",
       icon: Database,
-    },
-    {
-      title: "Mobile Optimization",
-      desc: "Ensuring your web applications deliver flawless performance across smartphones and tablets.",
-      icon: Smartphone,
-    },
-    {
-      title: "Security & Auth",
-      desc: "Implementing robust authentication pipelines, OAuth, JWT, and data encryption protocols.",
-      icon: Shield,
-    },
-    {
-      title: "Speed & SEO",
-      desc: "Optimizing Core Web Vitals, metadata, and asset bundling for maximum search visibility.",
-      icon: Zap,
-    },
+    }, 
   ];
 
   return (

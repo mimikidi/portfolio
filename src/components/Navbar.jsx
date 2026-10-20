@@ -50,7 +50,7 @@ export default function Navbar() {
               <Code2 className="w-5 h-5" />
             </div>
             <span className="text-xl font-bold tracking-tight text-slate-900">
-              Alex.<span className="text-indigo-600">Dev</span>
+              kidist.<span className="text-indigo-600">Dev</span>
             </span>
           </a>
 
@@ -78,7 +78,11 @@ export default function Navbar() {
               href="#contact"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-md shadow-indigo-600/20 active:scale-95 group"
             >
-              <span>Hire Me</span>
+              <span>
+                {" "}
+                 
+                   Hire Me
+              </span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </a>
           </div>
@@ -124,7 +128,7 @@ export default function Navbar() {
               className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-medium text-white bg-indigo-600 shadow-md shadow-indigo-600/20"
             >
               <span>Hire Me</span>
-              <ArrowRight className="w-4 h-4" />
+              <Icon ArrowRight className="w-4 h-4" />
             </a>
           </div>
         </div>

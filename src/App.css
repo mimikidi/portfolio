@@ -9,7 +9,7 @@
   margin-bottom: 24px;
 
   &:hover {
-    border-color: var(--accent-border);
+    border-color:var(--accent-bg)
   }
   &:focus-visible {
     outline: 2px solid var(--accent);
@@ -36,6 +36,7 @@
   .framework,
   .vite {
     position: absolute;
+
   }
 
   .framework {
@@ -112,7 +113,7 @@
   margin: 32px 0 0;
 
   .logo {
-    height: 18px;
+    height: 18%;
   }
 
   a {
@@ -131,8 +132,8 @@
       box-shadow: var(--shadow);
     }
     .button-icon {
-      height: 18px;
-      width: 18px;
+      height: 18%;
+      width: 18%;
     }
   }
 
@@ -154,7 +155,7 @@
 }
 
 #spacer {
-  height: 88px;
+  height: 89px;
   border-top: 1px solid var(--border);
   @media (max-width: 1024px) {
     height: 48px;

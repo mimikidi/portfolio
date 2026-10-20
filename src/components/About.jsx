@@ -17,46 +17,41 @@ export default function About() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="relative">
-            <div className="w-full h-[400px] bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl shadow-xl overflow-hidden flex items-center justify-center text-white text-3xl font-bold">
+            <div className="w-[320px] h-[370px] bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl shadow-xl overflow-hidden flex items-center justify-center text-white text-3xl font-bold">
               <img src={image} alt=" " />
             </div>
           </div>
 
           <div className="space-y-6">
             <h3 className="text-2xl font-bold text-slate-900">
-              I&apos;m Kidist, a Full-Stack Engineer based in San Francisco.
+              I&apos;m Kidist, a software engineering student in a Injibara
+              university.
             </h3>
             <p className="text-slate-600 leading-relaxed">
-              I specialize in building scalable software solutions, turning
-              complex problems into intuitive, high-performance web
-              applications. With over 5 years of commercial software engineering
-              experience, I bridge design and engineering seamlessly.
+              Software Engineering student actively collaborating on group
+              assignments,
             </p>
 
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-indigo-600" />
+                <span className="text-slate-700 font-medium">test code</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-5 h-5 text-indigo-600" />
                 <span className="text-slate-700 font-medium">
-                  Clean Code Standards
+                  prepare document
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-indigo-600" />
                 <span className="text-slate-700 font-medium">
-                  Modern Tech Stack
+                  gathrining requirment
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-indigo-600" />
-                <span className="text-slate-700 font-medium">
-                  Responsive Layouts
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-indigo-600" />
-                <span className="text-slate-700 font-medium">
-                  Fast Performance
-                </span>
+                <span className="text-slate-700 font-medium">best design</span>
               </div>
             </div>
 
@@ -64,14 +59,14 @@ export default function About() {
               <div className="flex items-center gap-2 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-sm">
                 <Briefcase className="w-5 h-5 text-indigo-600" />
                 <div>
-                  <div className="font-bold text-slate-900">5+ Years</div>
+                  <div className="font-bold text-slate-900">active </div>
                   <div className="text-xs text-slate-500">Experience</div>
                 </div>
               </div>
               <div className="flex items-center gap-2 bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-sm">
                 <Award className="w-5 h-5 text-indigo-600" />
                 <div>
-                  <div className="font-bold text-slate-900">40+ Projects</div>
+                  <div className="font-bold text-slate-900">group work</div>
                   <div className="text-xs text-slate-500">Completed</div>
                 </div>
               </div>
