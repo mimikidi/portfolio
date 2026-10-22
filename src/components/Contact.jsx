@@ -1,27 +1,80 @@
 import React, { useState } from "react";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 
+// ---------- CHANGE ONLY THIS PART ----------
+const OWNER_NAME = "Kidist"; // <- write your own name
+const EMAIL = "kidistm050@gmail.com"; // <- the email you used to create the key
+const PHONE = "+251964437284";
+const PHONE_DISPLAY = "+251 964 43 72 84";
+const LOCATION = "Injibara, Ethiopia";
+const ACCESS_KEY = "b0da4418-03b4-49f0-9667-c2225bae8daf";
+// -------------------------------------------
+
+const inputClass =
+  "w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 transition";
+const labelClass = "block text-sm font-medium text-slate-700 mb-2";
+const cardClass =
+  "flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-indigo-500 hover:shadow-md transition group";
+
+const contacts = [
+  {
+    icon: Mail,
+    label: "Email",
+    value: EMAIL,
+    href: `https://mail.google.com/mail/?view=cm&fs=1&to=${EMAIL}`,
+    external: true,
+  },
+  { icon: Phone, label: "Call Me", value: PHONE_DISPLAY, href: `tel:${PHONE}` },
+  {
+    icon: MapPin,
+    label: "Location",
+    value: LOCATION,
+    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(LOCATION)}`,
+    external: true,
+  },
+];
+
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
+  const [status, setStatus] = useState("idle"); // idle | sending | success | error
 
-  // Native mailto submission fallback (or connect to EmailJS / backend API)
-  const handleSubmit = (e) => {
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setStatus("sending");
 
-    const recipient = "kidistm050@gmail.com";
-    const subject = encodeURIComponent(`Message from ${formData.name}`);
-    const body = encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`,
-    );
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: ACCESS_KEY,
+          subject: `New message for ${OWNER_NAME} from ${formData.name}`,
+          from_name: `${OWNER_NAME} Portfolio`,
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+        }),
+      });
 
-    window.open(
-      `mailto:${recipient}?subject=${subject}&body=${body}`,
-      "_blank",
-    );
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || "Failed");
+
+      setStatus("success");
+      setFormData({ name: "", email: "", message: "" });
+    } catch (err) {
+      console.error(err);
+      setStatus("error");
+    }
   };
 
   return (
@@ -37,127 +90,102 @@ export default function Contact() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Left Column: Contact Cards */}
+          {/* Left: contact cards */}
           <div className="space-y-6">
             <h3 className="text-2xl font-bold text-slate-900 mb-2">
-              Contact Information
+              Contact {OWNER_NAME}
             </h3>
             <p className="text-slate-600 mb-6">
               Have a project in mind or want to discuss potential opportunities?
               Reach out directly or fill out the form.
             </p>
 
-            {/* Email Card (Opens Gmail directly to your inbox) */}
-            <a
-              href="https://mail.google.com/mail/?view=cm&fs=1&to=kidistm050@gmail.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-indigo-500 hover:shadow-md transition group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition">
-                <Mail className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-sm text-slate-500">Email</div>
-                <div className="font-semibold text-slate-900 group-hover:text-indigo-600 transition">
-                  kidistm050@gmail.com
+            {contacts.map(({ icon: Icon, label, value, href, external }) => (
+              <a
+                key={label}
+                href={href}
+                className={cardClass}
+                {...(external && {
+                  target: "_blank",
+                  rel: "noopener noreferrer",
+                })}
+              >
+                <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition">
+                  <Icon className="w-5 h-5" />
                 </div>
-              </div>
-            </a>
-
-            {/* Phone Card (Whole Block Clickable) */}
-            <a
-              href="tel:+251964437284"
-              className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-indigo-500 hover:shadow-md transition group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition">
-                <Phone className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-sm text-slate-500">Call Me</div>
-                <div className="font-semibold text-slate-900 group-hover:text-indigo-600 transition">
-                  +251 964 43 72 84
+                <div>
+                  <div className="text-sm text-slate-500">{label}</div>
+                  <div className="font-semibold text-slate-900 group-hover:text-indigo-600 transition">
+                    {value}
+                  </div>
                 </div>
-              </div>
-            </a>
-
-            {/* Google Maps Location Card (Whole Block Clickable) */}
-            <a
-              href="https://www.google.com/maps/search/?api=1&query=Injibara,+Ethiopia"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-indigo-500 hover:shadow-md transition group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition">
-                <MapPin className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-sm text-slate-500">Location</div>
-                <div className="font-semibold text-slate-900 group-hover:text-indigo-600 transition">
-                  Injibara, Ethiopia
-                </div>
-              </div>
-            </a>
+              </a>
+            ))}
           </div>
 
-          {/* Right Column: Contact Form */}
+          {/* Right: form */}
           <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Your Name
-                </label>
+                <label className={labelClass}>Your Name</label>
                 <input
+                  name="name"
                   type="text"
                   required
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 transition"
+                  onChange={handleChange}
+                  className={inputClass}
                   placeholder="Your Name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Your Email
-                </label>
+                <label className={labelClass}>Your Email</label>
                 <input
+                  name="email"
                   type="email"
                   required
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 transition"
+                  onChange={handleChange}
+                  className={inputClass}
                   placeholder="yourname@example.com"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Message
-                </label>
+                <label className={labelClass}>Message</label>
                 <textarea
+                  name="message"
                   rows="4"
                   required
                   value={formData.message}
-                  onChange={(e) =>
-                    setFormData({ ...formData, message: e.target.value })
-                  }
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-600 transition"
-                  placeholder="Tell me about your project..."
-                ></textarea>
+                  onChange={handleChange}
+                  className={inputClass}
+                  placeholder={`Write your message to ${OWNER_NAME}...`}
+                />
               </div>
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-600/20 transition active:scale-[0.99]"
+                disabled={status === "sending"}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-medium text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-600/20 transition active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <span>Send Message</span>
+                <span>
+                  {status === "sending" ? "Sending..." : "Send Message"}
+                </span>
                 <Send className="w-4 h-4" />
               </button>
+
+              {status === "success" && (
+                <p className="text-green-600 text-sm text-center">
+                  Thank you! Your message has been sent to {OWNER_NAME}.
+                </p>
+              )}
+              {status === "error" && (
+                <p className="text-red-600 text-sm text-center">
+                  Something went wrong. Please try again.
+                </p>
+              )}
             </form>
           </div>
         </div>
