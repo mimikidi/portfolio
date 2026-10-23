@@ -1,104 +1,409 @@
-import React, { useState } from "react";
-import Navbar from "./components/Navbar";
-import About from "./components/About";
-import Services from "./components/Services";
-import Skills from "./components/Skills";
-import Projects from "./components/Projects";
-import Contact from "./components/Contact";
-import { ArrowRight } from "lucide-react";
+import { useState } from "react";
+import {
+  Search,
+  ShoppingBag,
+  Heart,
+  Plus,
+  Minus,
+  X,
+  Sparkles,
+} from "lucide-react";
 
-export default function App() {
-  const [darkMode, setDarkMode] = useState(false);
+const products = [
+  {
+    id: 1,
+    name: "Glow Serum",
+    category: "Skincare",
+    price: 24.99,
+    emoji: "🧴",
+    color: "peach",
+  },
+  {
+    id: 2,
+    name: "Rose Cleanser",
+    category: "Skincare",
+    price: 18.5,
+    emoji: "🫧",
+    color: "pink",
+  },
+  {
+    id: 3,
+    name: "Velvet Lipstick",
+    category: "Makeup",
+    price: 15,
+    emoji: "💄",
+    color: "berry",
+  },
+  {
+    id: 4,
+    name: "Daily Sun Care",
+    category: "Skincare",
+    price: 21,
+    emoji: "☀️",
+    color: "cream",
+  },
+  {
+    id: 5,
+    name: "Blush Palette",
+    category: "Makeup",
+    price: 27.5,
+    emoji: "🎨",
+    color: "lilac",
+  },
+  {
+    id: 6,
+    name: "Body Butter",
+    category: "Body Care",
+    price: 19.99,
+    emoji: "🧴",
+    color: "sand",
+  },
+];
+
+function App() {
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [cart, setCart] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [cartOpen, setCartOpen] = useState(false);
+
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch = product.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const matchesCategory = category === "All" || product.category === category;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+
+  const cartTotal = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0,
+  );
+
+  function addToCart(product) {
+    setCart((current) => {
+      const existing = current.find((item) => item.id === product.id);
+
+      if (existing) {
+        return current.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
+        );
+      }
+
+      return [...current, { ...product, quantity: 1 }];
+    });
+
+    setCartOpen(true);
+  }
+
+  function changeQuantity(id, amount) {
+    setCart((current) =>
+      current
+        .map((item) =>
+          item.id === id ? { ...item, quantity: item.quantity + amount } : item,
+        )
+        .filter((item) => item.quantity > 0),
+    );
+  }
+
+  function toggleFavorite(id) {
+    setFavorites((current) =>
+      current.includes(id)
+        ? current.filter((item) => item !== id)
+        : [...current, id],
+    );
+  }
 
   return (
-    <div
-      className={`min-h-screen font-sans transition-colors duration-300 ${
-        darkMode
-          ? "bg-slate-950 text-slate-100 selection:bg-indigo-600 selection:text-white"
-          : "bg-white text-slate-900 selection:bg-indigo-500 selection:text-white"
-      }`}
-    >
-      {/* Navigation Bar with Theme Toggle */}
-      <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
+    <div className="app">
+      <div className="announcement">
+        ✨ Your beauty, your glow — free shipping over $50
+      </div>
 
-      {/* Hero Section */}
-      <section
-        id="home"
-        className="pt-36 pb-24 md:pt-48 md:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center"
-      >
-        <div
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 border ${
-            darkMode
-              ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
-              : "bg-indigo-50 text-indigo-600 border-indigo-100"
-          }`}
-        >
-          ✨ Available for freelance & full-time roles
-        </div>
-        <h1
-          className={`text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight ${darkMode ? "text-white" : "text-slate-900"}`}
-        >
-          Future-focused software developer{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">
-            Precision
+      <header className="navbar">
+        <a className="logo" href="#home">
+          <Sparkles size={23} />
+          <span>
+            glow.
+            <small>BEAUTY STORE</small>
           </span>
-        </h1>
-        <p
-          className={`mt-6 text-lg sm:text-xl max-w-2xl mx-auto ${darkMode ? "text-slate-400" : "text-slate-600"}`}
-        >
-           building scalable
-          full-stack web applications with modern frameworks and precision.
-        </p>
-        <div className="mt-10 flex flex-wrap justify-center gap-4">
-          <a
-            href="#projects"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-600/25 transition-all"
+        </a>
+
+        <nav>
+          <a href="#home">Home</a>
+          <a href="#products">Shop</a>
+          <a href="#about">About</a>
+        </nav>
+
+        <div className="header-actions">
+          <label className="search-box">
+            <Search size={18} />
+            <input
+              type="search"
+              placeholder="Search products..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
+
+          <button
+            className="cart-button"
+            onClick={() => setCartOpen(true)}
+            aria-label="Open shopping cart"
           >
-            <span>Explore Projects</span>
-            <ArrowRight className="w-4 h-4" />
-          </a>
-          <a
-            href="#contact"
-            className={`inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold transition-all ${
-              darkMode
-                ? "text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-800"
-                : "text-slate-700 bg-slate-100 hover:bg-slate-200"
-            }`}
-          >
-            Contact Me
-          </a>
+            <ShoppingBag size={22} />
+            <span>{cartCount}</span>
+          </button>
         </div>
-      </section>
+      </header>
 
-      {/* Page Sections (All supporting dark/light mode dynamically via props or structural classes) */}
-      <About darkMode={darkMode} />
-      <Services darkMode={darkMode} />
-      <Skills darkMode={darkMode} />
-      <Projects darkMode={darkMode} />
-      <Contact darkMode={darkMode} />
+      <main>
+        <section className="hero" id="home">
+          <div className="hero-text">
+            <p className="eyebrow">YOUR EVERYDAY BEAUTY RITUAL</p>
 
-      {/* Footer */}
-      <footer
-        className={`py-12 text-center text-sm border-t ${
-          darkMode
-            ? "bg-slate-900 border-slate-800 text-slate-400"
-            : "bg-slate-900 text-slate-300 border-slate-800"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <h1>
+              Let your natural
+              <br />
+              beauty <em>glow.</em>
+            </h1>
+
+            <p className="hero-description">
+              Discover skincare and beauty essentials designed to make every day
+              feel special.
+            </p>
+
+            <a href="#products" className="primary-button">
+              Explore products ↗
+            </a>
+          </div>
+
+          <div className="hero-image" aria-label="Beauty products">
+            <div className="sun-circle" />
+            <div className="hero-product product-one">🧴</div>
+            <div className="hero-product product-two">💄</div>
+            <div className="hero-product product-three">🌸</div>
+            <p>Love your skin ♡</p>
+          </div>
+        </section>
+
+        <section className="benefits">
           <div>
-            © {new Date().getFullYear()} kidist.Dev. All rights reserved.
+            ♡ <span>Beauty essentials</span>
           </div>
-          <div className="flex gap-6 text-slate-400">
-            <a href="#home" className="hover:text-white transition-colors">
-              Privacy Policy
-            </a>
-            <a href="#home" className="hover:text-white transition-colors">
-              Terms of Service
-            </a>
+          <div>
+            ✿ <span>Everyday self-care</span>
           </div>
-        </div>
+          <div>
+            ✧ <span>Made for your glow</span>
+          </div>
+        </section>
+
+        <section className="products-section" id="products">
+          <div className="section-heading">
+            <p className="eyebrow">FIND YOUR FAVORITES</p>
+            <h2>
+              Our beauty <em>collection.</em>
+            </h2>
+            <p>Little things that make you feel wonderful.</p>
+          </div>
+
+          <div className="filters">
+            {["All", "Skincare", "Makeup", "Body Care"].map((item) => (
+              <button
+                key={item}
+                className={category === item ? "filter active" : "filter"}
+                onClick={() => setCategory(item)}
+              >
+                {item}
+              </button>
+            ))}
+            <span>{filteredProducts.length} products</span>
+          </div>
+
+          <div className="product-grid">
+            {filteredProducts.map((product) => (
+              <article className="product-card" key={product.id}>
+                <div className={`product-image ${product.color}`}>
+                  <span className="product-emoji">{product.emoji}</span>
+
+                  <button
+                    className={
+                      favorites.includes(product.id)
+                        ? "favorite selected"
+                        : "favorite"
+                    }
+                    onClick={() => toggleFavorite(product.id)}
+                    aria-label="Toggle favorite"
+                  >
+                    <Heart
+                      size={19}
+                      fill={
+                        favorites.includes(product.id) ? "currentColor" : "none"
+                      }
+                    />
+                  </button>
+                </div>
+
+                <p className="product-category">{product.category}</p>
+
+                <div className="product-details">
+                  <h3>{product.name}</h3>
+                  <strong>${product.price.toFixed(2)}</strong>
+                </div>
+
+                <button
+                  className="add-button"
+                  onClick={() => addToCart(product)}
+                >
+                  <Plus size={17} /> Add to bag
+                </button>
+              </article>
+            ))}
+          </div>
+
+          {filteredProducts.length === 0 && (
+            <div className="empty-results">
+              <h3>No products found</h3>
+              <p>Try a different search or category.</p>
+              <button
+                className="filter"
+                onClick={() => {
+                  setSearch("");
+                  setCategory("All");
+                }}
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
+        </section>
+
+        <section className="about-section" id="about">
+          <Sparkles size={28} />
+          <h2>
+            Beauty begins with <em>self-love.</em>
+          </h2>
+          <p>
+            Take a moment for yourself. Find your routine, celebrate your
+            beauty, and let yourself glow.
+          </p>
+        </section>
+      </main>
+
+      <footer className="footer">
+        <a className="logo" href="#home">
+          glow.
+        </a>
+        <p>Made with love for your everyday beauty.</p>
+        <small>© 2026 Glow Beauty Store</small>
       </footer>
+
+      {cartOpen && (
+        <div className="cart-overlay" onClick={() => setCartOpen(false)}>
+          <aside className="cart-drawer" onClick={(e) => e.stopPropagation()}>
+            <div className="cart-heading">
+              <h2>Your shopping bag ({cartCount})</h2>
+              <button
+                className="close-button"
+                onClick={() => setCartOpen(false)}
+                aria-label="Close shopping cart"
+              >
+                <X />
+              </button>
+            </div>
+
+            {cart.length === 0 ? (
+              <div className="empty-cart">
+                <ShoppingBag size={42} />
+                <h3>Your bag is empty</h3>
+                <p>Discover something lovely for yourself.</p>
+                <button
+                  className="primary-button"
+                  onClick={() => setCartOpen(false)}
+                >
+                  Continue shopping
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="cart-items">
+                  {cart.map((item) => (
+                    <div className="cart-item" key={item.id}>
+                      <div className={`cart-thumb ${item.color}`}>
+                        {item.emoji}
+                      </div>
+
+                      <div className="cart-item-info">
+                        <h3>{item.name}</h3>
+                        <p>${item.price.toFixed(2)}</p>
+
+                        <div className="quantity">
+                          <button
+                            onClick={() => changeQuantity(item.id, -1)}
+                            aria-label="Decrease quantity"
+                          >
+                            <Minus size={14} />
+                          </button>
+
+                          <span>{item.quantity}</span>
+
+                          <button
+                            onClick={() => changeQuantity(item.id, 1)}
+                            aria-label="Increase quantity"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <strong>
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </strong>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="cart-total">
+                  <p>
+                    <span>Subtotal</span>
+                    <strong>${cartTotal.toFixed(2)}</strong>
+                  </p>
+
+                  <p className="shipping-message">
+                    {cartTotal >= 50
+                      ? "You've unlocked free shipping!"
+                      : `Spend $${(50 - cartTotal).toFixed(
+                          2,
+                        )} more for free shipping.`}
+                  </p>
+
+                  <button
+                    className="primary-button checkout-button"
+                    onClick={() =>
+                      alert(
+                        "This is a demo store. Real payments are not enabled.",
+                      )
+                    }
+                  >
+                    Checkout ↗
+                  </button>
+
+                  <small>Demo only — no real payment is taken.</small>
+                </div>
+              </>
+            )}
+          </aside>
+        </div>
+      )}
     </div>
   );
 }
+
+export default App;
