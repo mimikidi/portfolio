@@ -1,141 +1,90 @@
+/* Projects Section Styles */
 
-.projects-section {
-  padding: 80px 7%;
-  background: #fffaf8;
-  color: #392e2a;
+.projects-section-wrapper {
+  padding: 6rem 1.5rem;
+  background-color: #f8fafc;
+  position: relative;
 }
 
-.projects-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.projects-subtitle {
-  text-align: center;
-  color: #ce8a80;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 3px;
-}
-
-.projects-title {
-  text-align: center;
-  font-size: 40px;
-  margin: 12px 0;
-}
-
-.projects-title span {
-  color: #ce8a80;
-}
-
-.projects-description {
-  text-align: center;
-  color: #83736c;
-  margin-bottom: 40px;
-}
-
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 25px;
-}
-
-.project-card {
-  overflow: hidden;
+.project-card-container {
+  display: flex;
+  flex-direction: column;
   background: white;
-  border: 1px solid #f0e3dd;
-  border-radius: 14px;
-  box-shadow: 0 8px 25px #392e2a0d;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.project-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 30px #392e2a18;
-}
-
-.project-image {
-  height: 200px;
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
   overflow: hidden;
-  background: #f3e4de;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.project-image img {
+.project-card-container:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  border-color: #cbd5e1;
+}
+
+.project-card-media {
+  height: 220px;
+  position: relative;
+  overflow: hidden;
+  background-color: #e2e8f0;
+}
+
+.project-card-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+  transition: transform 0.5s ease;
 }
 
-.project-content {
-  padding: 22px;
+.project-card-container:hover .project-card-media img {
+  transform: scale(1.05);
 }
 
-.project-content h3 {
-  margin: 0 0 12px;
-  font-size: 21px;
-}
-
-.project-content > p {
-  color: #83736c;
-  font-size: 14px;
-  line-height: 1.7;
-  min-height: 70px;
-}
-
-.project-technologies {
+.project-demo-overlay-btn {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 18px 0;
-}
-
-.project-technologies span {
-  padding: 6px 10px;
-  border-radius: 20px;
-  background: #f8eeea;
-  color: #95695f;
-  font-size: 12px;
-}
-
-.project-links {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  padding-top: 15px;
-  border-top: 1px solid #f0e3dd;
-}
-
-.project-links a {
-  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: #493832;
-  text-decoration: none;
-  font-size: 13px;
+  justify-content: center;
+  gap: 0.5rem;
+  color: white;
   font-weight: 600;
+  font-size: 0.875rem;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+  border: none;
 }
 
-.project-links a:hover {
-  color: #ce8a80;
+.project-card-media:hover .project-demo-overlay-btn {
+  opacity: 1;
 }
 
-@media (max-width: 900px) {
-  .projects-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+/* Modal styles for fullscreen demo */
+.cosmetic-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  overflow-y: auto;
 }
 
-@media (max-width: 600px) {
-  .projects-section {
-    padding: 55px 5%;
-  }
-
-  .projects-title {
-    font-size: 32px;
-  }
-
-  .projects-grid {
-    grid-template-columns: 1fr;
-  }
+.cosmetic-modal-window {
+  background: white;
+  width: 100%;
+  max-width: 1100px;
+  max-height: 92vh;
+  border-radius: 1.25rem;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
