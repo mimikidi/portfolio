@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Search,
   ShoppingBag,
@@ -9,90 +9,123 @@ import {
   Sparkles,
   ArrowLeft,
   Check,
+  Loader2,
 } from "lucide-react";
 import { initialCosmeticProducts } from "../data/cosmeticProducts";
 import "./CosmeticStore.css";
 
-export default function CosmeticStore({ onClose, isModal = false }) {
-  const [products] = useState(initialCosmeticProducts);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
-  const [cart, setCart] = useState([
-    {
-      id: 1,
-      name: "Glow Serum",
-      category: "Skincare",
-      price: 24.99,
-      emoji: "🧴",
-      color: "peach",
-      quantity: 1,
-    },
-  ]);
-  const [favorites, setFavorites] = useState([1]);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+// Backend API base URL — change to your deployed URL in production
+const API_BASE = "http://localhost:5000";
 
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesCategory = category === "All" || product.category === category;
-    return matchesSearch && matchesCategory;
+export default function CosmeticStore({ onClose, isModal = false }) {
+  // ── Products (fetched from PostgreSQL backend) ──────────────────────
+  const [products, setProducts]     = useState([]);
+  const [loadingDB, setLoadingDB]   = useState(true);
+  const [dbConnected, setDbConnected] = useState(false);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/products`);
+        if (!res.ok) throw new Error("API error");
+        const data = await res.json();
+        // Ensure every price is a JS number
+        setProducts(data.map((p) => ({ ...p, price: parseFloat(p.price) })));
+        setDbConnected(true);
+      } catch {
+        // Fallback to local static data if backend is offline
+        setProducts(initialCosmeticProducts);
+        setDbConnected(false);
+      } finally {
+        setLoadingDB(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  // ── State ────────────────────────────────────────────────────────────
+  const [search,   setSearch]   = useState("");
+  const [category, setCategory] = useState("All");
+  const [cart,     setCart]     = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+
+  // ── Derived values ───────────────────────────────────────────────────
+  const filteredProducts = products.filter((p) => {
+    const matchSearch   = p.name.toLowerCase().includes(search.toLowerCase());
+    const matchCategory = category === "All" || p.category === category;
+    return matchSearch && matchCategory;
   });
 
-  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
-  const cartTotal = cart.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0,
+  // Real $ calculations — always precise to 2 decimal places
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = parseFloat(
+    cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)
   );
+  const remainingForFreeShipping = parseFloat((50 - cartTotal).toFixed(2));
 
-  const showNotification = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage("");
-    }, 2500);
+  // ── Cart actions ─────────────────────────────────────────────────────
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(""), 2500);
   };
 
   const addToCart = (product) => {
-    setCart((current) => {
-      const existing = current.find((item) => item.id === product.id);
+    setCart((prev) => {
+      const existing = prev.find((item) => item.id === product.id);
       if (existing) {
-        return current.map((item) =>
+        return prev.map((item) =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
-            : item,
+            : item
         );
       }
-      return [...current, { ...product, quantity: 1 }];
+      return [...prev, { ...product, price: parseFloat(product.price), quantity: 1 }];
     });
-    showNotification(`Added ${product.name} to shopping bag`);
+    showToast(`✔ Added ${product.name} — $${parseFloat(product.price).toFixed(2)}`);
   };
 
-  const changeQuantity = (id, amount) => {
-    setCart((current) =>
-      current
+  // Add (+1) or subtract (-1) — removes item when quantity hits 0
+  const changeQuantity = (id, delta) => {
+    setCart((prev) =>
+      prev
         .map((item) =>
-          item.id === id ? { ...item, quantity: item.quantity + amount } : item,
+          item.id === id ? { ...item, quantity: item.quantity + delta } : item
         )
-        .filter((item) => item.quantity > 0),
+        .filter((item) => item.quantity > 0)
     );
+  };
+
+  const removeFromCart = (id) => {
+    setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
   const toggleFavorite = (id) => {
-    setFavorites((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id],
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
     );
   };
 
+  // ── Render ───────────────────────────────────────────────────────────
   return (
     <div className="cosmetic-store-scope">
-      {/* Top Demo Bar */}
+
+      {/* ── Top demo / DB status bar ── */}
       <div className="cosmetic-top-banner">
         <div className="flex items-center gap-2">
           <span className="cosmetic-demo-badge">Interactive Project Demo</span>
           <span>✨ Your beauty, your glow — free shipping over $50</span>
+          {/* DB connection badge */}
+          <span
+            className={`ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+              dbConnected
+                ? "bg-emerald-500/20 text-emerald-200"
+                : "bg-amber-500/20 text-amber-200"
+            }`}
+          >
+            {dbConnected ? "🟢 PostgreSQL" : "🟡 Offline mode"}
+          </span>
         </div>
         {onClose && (
           <button
@@ -104,49 +137,31 @@ export default function CosmeticStore({ onClose, isModal = false }) {
         )}
       </div>
 
-      {/* Floating Toast Notification */}
-      {toastMessage && (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-4 py-2 rounded-full text-xs shadow-lg flex items-center gap-2 animate-bounce">
+      {/* ── Toast notification ── */}
+      {toastMsg && (
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-4 py-2 rounded-full text-xs shadow-lg flex items-center gap-2">
           <Check size={14} className="text-emerald-400" />
-          {toastMessage}
+          {toastMsg}
         </div>
       )}
 
-      {/* Cosmetic Navbar */}
+      {/* ── Navbar ── */}
       <header className="cosmetic-navbar">
         <a className="cosmetic-logo" href="#cosmetic-home">
           <Sparkles size={22} />
-          <span>
-            glow.
-            <small>BEAUTY STORE</small>
-          </span>
+          <span>glow.<small>BEAUTY STORE</small></span>
         </a>
 
         <div className="cosmetic-nav-links">
-          <button
-            className={category === "All" ? "active" : ""}
-            onClick={() => setCategory("All")}
-          >
-            Catalog
-          </button>
-          <button
-            className={category === "Skincare" ? "active" : ""}
-            onClick={() => setCategory("Skincare")}
-          >
-            Skincare
-          </button>
-          <button
-            className={category === "Makeup" ? "active" : ""}
-            onClick={() => setCategory("Makeup")}
-          >
-            Makeup
-          </button>
-          <button
-            className={category === "Body Care" ? "active" : ""}
-            onClick={() => setCategory("Body Care")}
-          >
-            Body Care
-          </button>
+          {["All", "Skincare", "Makeup", "Body Care"].map((cat) => (
+            <button
+              key={cat}
+              className={category === cat ? "active" : ""}
+              onClick={() => setCategory(cat)}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
 
         <div className="cosmetic-header-actions">
@@ -173,15 +188,11 @@ export default function CosmeticStore({ onClose, isModal = false }) {
         </div>
       </header>
 
-      {/* Cosmetic Hero */}
+      {/* ── Hero ── */}
       <section className="cosmetic-hero" id="cosmetic-home">
         <div className="cosmetic-hero-text">
           <p className="cosmetic-eyebrow">YOUR EVERYDAY BEAUTY RITUAL</p>
-          <h1>
-            Let your natural
-            <br />
-            beauty <em>glow.</em>
-          </h1>
+          <h1>Let your natural<br />beauty <em>glow.</em></h1>
           <p className="cosmetic-hero-desc">
             Discover skincare and beauty essentials crafted with clean ingredients,
             designed to make everyday routines feel luxurious and effortless.
@@ -190,7 +201,6 @@ export default function CosmeticStore({ onClose, isModal = false }) {
             Explore products ↗
           </a>
         </div>
-
         <div className="cosmetic-hero-visual" aria-label="Beauty products showcase">
           <div className="cosmetic-sun-circle" />
           <div className="cosmetic-hero-prod c-prod-one">🧴</div>
@@ -200,37 +210,27 @@ export default function CosmeticStore({ onClose, isModal = false }) {
         </div>
       </section>
 
-      {/* Benefits */}
+      {/* ── Benefits ── */}
       <section className="cosmetic-benefits">
-        <div className="cosmetic-benefit-item">
-          ♡ <span>Clean Beauty Essentials</span>
-        </div>
-        <div className="cosmetic-benefit-item">
-          ✿ <span>Everyday Self-Care</span>
-        </div>
-        <div className="cosmetic-benefit-item">
-          ✧ <span>Cruelty-Free & Natural</span>
-        </div>
+        <div className="cosmetic-benefit-item">♡ <span>Clean Beauty Essentials</span></div>
+        <div className="cosmetic-benefit-item">✿ <span>Everyday Self-Care</span></div>
+        <div className="cosmetic-benefit-item">✧ <span>Cruelty-Free & Natural</span></div>
       </section>
 
-      {/* Products Catalog */}
+      {/* ── Products Catalog ── */}
       <section className="cosmetic-products-sec" id="cosmetic-products">
         <div className="cosmetic-sec-heading">
           <p className="cosmetic-eyebrow">CURATED COLLECTION</p>
-          <h2>
-            Our beauty <em>collection.</em>
-          </h2>
+          <h2>Our beauty <em>collection.</em></h2>
           <p>Hand-picked formulas for radiant, healthy, and happy skin.</p>
         </div>
 
-        {/* Filter controls */}
+        {/* Category filter pills */}
         <div className="cosmetic-filters">
           {["All", "Skincare", "Makeup", "Body Care"].map((item) => (
             <button
               key={item}
-              className={`cosmetic-filter-btn ${
-                category === item ? "active" : ""
-              }`}
+              className={`cosmetic-filter-btn ${category === item ? "active" : ""}`}
               onClick={() => setCategory(item)}
             >
               {item}
@@ -241,96 +241,89 @@ export default function CosmeticStore({ onClose, isModal = false }) {
           </span>
         </div>
 
-        {/* Products Grid */}
-        <div className="cosmetic-grid">
-          {filteredProducts.map((product) => (
-            <article className="cosmetic-card" key={product.id}>
-              <div className={`cosmetic-card-image ${product.color}`}>
-                <span className="cosmetic-card-emoji">{product.emoji}</span>
-
-                <button
-                  className={`cosmetic-card-fav ${
-                    favorites.includes(product.id) ? "selected" : ""
-                  }`}
-                  onClick={() => toggleFavorite(product.id)}
-                  aria-label="Save to favorites"
-                >
-                  <Heart
-                    size={17}
-                    fill={
-                      favorites.includes(product.id) ? "currentColor" : "none"
-                    }
-                  />
-                </button>
-              </div>
-
-              <div className="cosmetic-card-body">
-                <span className="cosmetic-card-cat">{product.category}</span>
-
-                <div className="cosmetic-card-header">
-                  <h3>{product.name}</h3>
-                  <strong>${product.price.toFixed(2)}</strong>
-                </div>
-
-                <p className="cosmetic-card-tagline">{product.tagline}</p>
-
-                <button
-                  className="cosmetic-card-add-btn"
-                  onClick={() => addToCart(product)}
-                >
-                  <Plus size={15} /> Add to bag
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        {filteredProducts.length === 0 && (
-          <div className="cosmetic-empty">
-            <h3>No products found</h3>
-            <p>Try searching for a different keyword or resetting filters.</p>
-            <button
-              className="cosmetic-btn-primary mt-3"
-              onClick={() => {
-                setSearch("");
-                setCategory("All");
-              }}
-            >
-              Reset Filters
-            </button>
+        {/* Loading spinner */}
+        {loadingDB ? (
+          <div className="flex items-center justify-center py-16 gap-3 text-slate-500">
+            <Loader2 size={22} className="animate-spin text-indigo-500" />
+            <span className="text-sm">Loading products from database…</span>
           </div>
+        ) : (
+          <>
+            {/* Products Grid */}
+            <div className="cosmetic-grid">
+              {filteredProducts.map((product) => (
+                <article className="cosmetic-card" key={product.id}>
+                  <div className={`cosmetic-card-image ${product.color}`}>
+                    <span className="cosmetic-card-emoji">{product.emoji}</span>
+                    <button
+                      className={`cosmetic-card-fav ${favorites.includes(product.id) ? "selected" : ""}`}
+                      onClick={() => toggleFavorite(product.id)}
+                      aria-label="Save to favorites"
+                    >
+                      <Heart
+                        size={17}
+                        fill={favorites.includes(product.id) ? "currentColor" : "none"}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="cosmetic-card-body">
+                    <span className="cosmetic-card-cat">{product.category}</span>
+                    <div className="cosmetic-card-header">
+                      <h3>{product.name}</h3>
+                      {/* Real $ price — always 2 decimal places */}
+                      <strong>${parseFloat(product.price).toFixed(2)}</strong>
+                    </div>
+                    <p className="cosmetic-card-tagline">{product.tagline}</p>
+                    <button
+                      className="cosmetic-card-add-btn"
+                      onClick={() => addToCart(product)}
+                    >
+                      <Plus size={15} /> Add to bag
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            {filteredProducts.length === 0 && (
+              <div className="cosmetic-empty">
+                <h3>No products found</h3>
+                <p>Try a different keyword or reset filters.</p>
+                <button
+                  className="cosmetic-btn-primary mt-3"
+                  onClick={() => { setSearch(""); setCategory("All"); }}
+                >
+                  Reset Filters
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
 
-      {/* Cosmetic Brand Philosophy */}
+      {/* ── Brand Philosophy ── */}
       <section className="cosmetic-about-sec">
         <Sparkles size={28} />
-        <h2>
-          Beauty begins with <em>self-love.</em>
-        </h2>
+        <h2>Beauty begins with <em>self-love.</em></h2>
         <p>
           Take a moment for yourself every day. Find your rhythm, celebrate your
           uniqueness, and let your natural inner confidence shine bright.
         </p>
       </section>
 
-      {/* Cosmetic Footer */}
+      {/* ── Footer ── */}
       <footer className="cosmetic-footer">
         <span className="cosmetic-footer-logo">glow.</span>
         <p>Crafted with love for everyday wellness.</p>
         <small>© 2026 Glow Beauty Store • Kidist Demo Project</small>
       </footer>
 
-      {/* Cart Drawer */}
+      {/* ── Cart Drawer ── */}
       {cartOpen && (
-        <div
-          className="cosmetic-cart-overlay"
-          onClick={() => setCartOpen(false)}
-        >
-          <aside
-            className="cosmetic-cart-drawer"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="cosmetic-cart-overlay" onClick={() => setCartOpen(false)}>
+          <aside className="cosmetic-cart-drawer" onClick={(e) => e.stopPropagation()}>
+            {/* Cart header */}
             <div className="cosmetic-cart-header">
               <h2>Your shopping bag ({cartCount})</h2>
               <button
@@ -358,60 +351,88 @@ export default function CosmeticStore({ onClose, isModal = false }) {
               </div>
             ) : (
               <>
+                {/* Cart items */}
                 <div className="cosmetic-cart-items">
-                  {cart.map((item) => (
-                    <div className="cosmetic-cart-item" key={item.id}>
-                      <div className={`cosmetic-cart-thumb ${item.color}`}>
-                        {item.emoji}
-                      </div>
+                  {cart.map((item) => {
+                    // Real $ line total calculated live
+                    const lineTotal = parseFloat((item.price * item.quantity).toFixed(2));
 
-                      <div className="cosmetic-cart-info">
-                        <h4>{item.name}</h4>
-                        <p>${item.price.toFixed(2)}</p>
+                    return (
+                      <div className="cosmetic-cart-item" key={item.id}>
+                        <div className={`cosmetic-cart-thumb ${item.color}`}>
+                          {item.emoji}
+                        </div>
 
-                        <div className="cosmetic-qty-controls">
+                        <div className="cosmetic-cart-info">
+                          <h4>{item.name}</h4>
+                          {/* Unit price */}
+                          <p>${parseFloat(item.price).toFixed(2)} each</p>
+
+                          {/* ── Quantity controls with real $ feedback ── */}
+                          <div className="cosmetic-qty-controls">
+                            <button
+                              onClick={() => changeQuantity(item.id, -1)}
+                              aria-label="Decrease quantity"
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span>{item.quantity}</span>
+                            <button
+                              onClick={() => changeQuantity(item.id, 1)}
+                              aria-label="Increase quantity"
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col items-end gap-2">
+                          {/* Real $ line total — updates live on every +/− */}
+                          <strong className="cosmetic-cart-item-total">
+                            ${lineTotal.toFixed(2)}
+                          </strong>
+                          {/* Remove button */}
                           <button
-                            onClick={() => changeQuantity(item.id, -1)}
-                            aria-label="Decrease quantity"
+                            onClick={() => removeFromCart(item.id)}
+                            className="text-slate-400 hover:text-rose-500 transition"
+                            aria-label="Remove item"
                           >
-                            <Minus size={12} />
-                          </button>
-                          <span>{item.quantity}</span>
-                          <button
-                            onClick={() => changeQuantity(item.id, 1)}
-                            aria-label="Increase quantity"
-                          >
-                            <Plus size={12} />
+                            <X size={13} />
                           </button>
                         </div>
                       </div>
-
-                      <strong className="cosmetic-cart-item-total">
-                        ${(item.price * item.quantity).toFixed(2)}
-                      </strong>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
+                {/* Cart footer with real $ totals */}
                 <div className="cosmetic-cart-footer">
+                  {/* Subtotal */}
                   <div className="cosmetic-subtotal-row">
-                    <span>Subtotal</span>
+                    <span>Subtotal ({cartCount} item{cartCount !== 1 ? "s" : ""})</span>
                     <strong>${cartTotal.toFixed(2)}</strong>
                   </div>
 
+                  {/* Free shipping progress */}
                   <div className="cosmetic-shipping-notice">
                     {cartTotal >= 50
                       ? "✨ You've unlocked FREE Shipping!"
-                      : `Add $${(50 - cartTotal).toFixed(
-                          2,
-                        )} more to unlock Free Shipping.`}
+                      : `Add $${remainingForFreeShipping.toFixed(2)} more for Free Shipping`}
+                  </div>
+
+                  {/* Free shipping progress bar */}
+                  <div className="w-full bg-slate-100 rounded-full h-1.5 mb-3">
+                    <div
+                      className="bg-emerald-400 h-1.5 rounded-full transition-all duration-300"
+                      style={{ width: `${Math.min((cartTotal / 50) * 100, 100)}%` }}
+                    />
                   </div>
 
                   <button
                     className="cosmetic-btn-primary cosmetic-checkout-btn"
                     onClick={() =>
                       alert(
-                        "Demo Notice: This is an interactive demo built by Kidist. No real payments are processed.",
+                        `Demo Notice: Cart total is $${cartTotal.toFixed(2)}.\nThis is an interactive demo built by Kidist. No real payments are processed.`
                       )
                     }
                   >

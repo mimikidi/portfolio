@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Layout, Server, Database, Code2, Sparkles, Check } from "lucide-react";
+import { Layout, Server, Database, Code2 } from "lucide-react";
 import { skillCategories } from "../data/skillsData";
 
 export default function Skills() {
@@ -29,25 +29,28 @@ export default function Skills() {
             My Skills & Technologies
           </h2>
           <p className="text-slate-600 mt-3 text-base">
-            Proficiencies across modern web frameworks, server architectures, databases, and development tooling.
+            "Right now, I understand the basics of frontend and I'm actively
+            practicing it."
           </p>
         </div>
 
         {/* Category Pills Filter */}
         <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
-          {["All", "Frontend", "Backend", "Databases", "Practices"].map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setSelectedCategory(filter)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all ${
-                selectedCategory === filter
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
-                  : "bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50"
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
+          {["All", "Frontend", "Backend", "Databases", "Practices"].map(
+            (filter) => (
+              <button
+                key={filter}
+                onClick={() => setSelectedCategory(filter)}
+                className={`px-4 py-2 rounded-full text-xs font-semibold tracking-wide transition-all ${
+                  selectedCategory === filter
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
+                    : "bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                {filter}
+              </button>
+            ),
+          )}
         </div>
 
         {/* Skills Grid */}
@@ -91,3 +94,4 @@ export default function Skills() {
     </section>
   );
 }
+

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import {
+import image from "../assets/nnn.png";
+import{
   ExternalLink,
   GitBranch,
   Sparkles,

@@ -9,45 +9,50 @@ import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("all"); // 'all' | 'about' | 'projects' | 'skills' | 'contact' | 'services'
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
 
-  // Scroll to section when tab is changed or stay in full view
-  const handleNavigate = (tabId) => {
-    setActiveTab("all");
-    const element = document.getElementById(tabId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
-  };
+  }, [darkMode]);
+
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased selection:bg-indigo-600 selection:text-white flex flex-col">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-100 antialiased selection:bg-indigo-600 selection:text-white flex flex-col transition-colors duration-300">
       {/* Global Navigation Bar */}
-      <Navbar onNavigate={handleNavigate} />
+      <Navbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
 
-      {/* Main Content Sections - Rearranged by About, Project, Skills, Contact */}
+      {/* Main Content Sections */}
       <main className="flex-1">
         {/* 1. Home / Hero Landing Section */}
-        <Hero onExploreProjects={() => handleNavigate("projects")} onContact={() => handleNavigate("contact")} />
+        <Hero />
 
-        {/* 2. About Me Page / Section */}
-        <About onExploreWork={() => handleNavigate("projects")} />
+        {/* 2. About Me Section */}
+        <About />
 
-        {/* 3. Projects Page / Section (Features Cosmetic Store front and center!) */}
+        {/* 3. Projects & Interactive Demo Section */}
         <Projects />
 
-        {/* 4. Skills Page / Section */}
+        {/* 4. Skills Section */}
         <Skills />
 
         {/* 5. Services Section */}
-        <Services onContact={() => handleNavigate("contact")} />
+        <Services />
 
-        {/* 6. Contact Page / Section */}
+        {/* 6. Contact Section */}
         <Contact />
       </main>
 
-      {/* Global Developer Portfolio Footer */}
-      <Footer onNavigate={handleNavigate} />
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

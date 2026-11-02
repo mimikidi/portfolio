@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, Server, Database, CheckCircle, ArrowRight } from "lucide-react";
+import { Layout, Server, Database } from "lucide-react";
 
 export default function Services() {
   const services = [
@@ -35,7 +35,9 @@ export default function Services() {
             What I Can Deliver For You
           </h2>
           <p className="text-slate-600 mt-3 text-base">
-            Providing reliable engineering solutions tailored to modern product and software standards.
+            As I look toward the future, I believe I can deliver reliable
+            engineering solutions that meet modern software standards and future
+            requirements.
           </p>
         </div>
 
@@ -78,3 +80,4 @@ export default function Services() {
     </section>
   );
 }
+

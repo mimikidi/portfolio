@@ -10,9 +10,11 @@ import {
   Layers,
   Cpu,
   Mail,
+  Sun,
+  Moon,
 } from "lucide-react";
 
-export default function Navbar() {
+export default function Navbar({ darkMode, toggleDarkMode }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
@@ -21,7 +23,7 @@ export default function Navbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
 
-      const sections = ["home", "about", "services", "skills", "projects", "contact"];
+      const sections = ["home", "about", "projects", "skills", "services", "contact"];
       const scrollPosition = window.scrollY + 200;
 
       for (const section of sections) {
@@ -44,9 +46,9 @@ export default function Navbar() {
   const navLinks = [
     { name: "Home", href: "#home", id: "home", icon: Home },
     { name: "About", href: "#about", id: "about", icon: User },
-    { name: "Services", href: "#services", id: "services", icon: Layers },
-    { name: "Skills", href: "#skills", id: "skills", icon: Cpu },
     { name: "Projects", href: "#projects", id: "projects", icon: Briefcase },
+    { name: "Skills", href: "#skills", id: "skills", icon: Cpu },
+    { name: "Services", href: "#services", id: "services", icon: Layers },
     { name: "Contact", href: "#contact", id: "contact", icon: Mail },
   ];
 
@@ -54,7 +56,7 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled
-          ? "bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm shadow-slate-900/5 py-3"
+          ? "bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-700/80 shadow-sm shadow-slate-900/5 py-3"
           : "bg-transparent py-5"
       }`}
     >
@@ -65,21 +67,21 @@ export default function Navbar() {
             <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/25 group-hover:rotate-6 transition-transform">
               <Code2 className="w-5 h-5" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-slate-900">
+            <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
               kidist<span className="text-indigo-600">.dev</span>
             </span>
           </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-full border border-slate-200/60 backdrop-blur-sm">
+          <nav className="hidden md:flex items-center gap-1 bg-slate-100/80 dark:bg-slate-800/80 p-1.5 rounded-full border border-slate-200/60 dark:border-slate-700/60 backdrop-blur-sm">
             {navLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
                 className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all ${
                   activeSection === link.id
-                    ? "text-indigo-600 bg-white shadow-sm"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                    ? "text-indigo-600 bg-white dark:bg-slate-700 shadow-sm"
+                    : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-700/50"
                 }`}
               >
                 {link.name}
@@ -87,8 +89,17 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Hire Me CTA */}
+          {/* Desktop: Dark Mode Toggle + Hire Me CTA */}
           <div className="hidden md:flex items-center gap-3">
+            {/* Dark / Light Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              aria-label="Toggle dark mode"
+              className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm transition-all"
+            >
+              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
             <a
               href="#contact"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-xs text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-md shadow-indigo-600/25 active:scale-95 group"
@@ -99,10 +110,19 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-2">
+            {/* Dark / Light Toggle (mobile) */}
+            <button
+              onClick={toggleDarkMode}
+              aria-label="Toggle dark mode"
+              className="p-2.5 rounded-xl text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm transition-all"
+            >
+              {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2.5 rounded-xl text-slate-700 bg-white border border-slate-200 shadow-sm"
+              className="p-2.5 rounded-xl text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? (
@@ -117,7 +137,7 @@ export default function Navbar() {
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-xl px-5 py-6 mt-3 space-y-2 animate-fadeIn">
+        <div className="md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700 shadow-xl px-5 py-6 mt-3 space-y-2 animate-fadeIn">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = activeSection === link.id;
@@ -128,16 +148,16 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition ${
                   isActive
-                    ? "text-indigo-600 bg-indigo-50/70"
-                    : "text-slate-700 hover:bg-slate-50"
+                    ? "text-indigo-600 bg-indigo-50/70 dark:bg-indigo-900/30"
+                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
+                <Icon className={`w-4 h-4 ${isActive ? "text-indigo-600" : "text-slate-400 dark:text-slate-500"}`} />
                 {link.name}
               </a>
             );
           })}
-          <div className="pt-3 border-t border-slate-100">
+          <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
             <a
               href="#contact"
               onClick={() => setMobileMenuOpen(false)}

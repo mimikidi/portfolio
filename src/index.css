@@ -2,10 +2,21 @@
 @source "./";
 @source "../index.html";
 
+/* ── Dark mode: Tailwind v4 class-based variant ── */
+@variant dark (&:where(.dark, .dark *));
+
 @layer base {
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
   }
-}
 
+  body {
+    @apply transition-colors duration-300;
+  }
+
+  /* Dark mode root background */
+  html.dark body {
+    @apply bg-slate-900 text-slate-100;
+  }
+}
