@@ -275,6 +275,43 @@ export default function CosmeticStore({ onClose, isModal = false }) {
                       <strong>${parseFloat(product.price).toFixed(2)}</strong>
                     </div>
                     <p className="cosmetic-card-tagline">{product.tagline}</p>
+
+                    {/* ── How to Use (shown only if product has this data) ── */}
+                    {product.howToUse && (
+                      <div className="mt-3 mb-2">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                          How to Use
+                        </p>
+                        <ol className="space-y-1">
+                          {product.howToUse.map((step, i) => (
+                            <li key={i} className="flex items-start gap-1.5 text-[11px] text-slate-600">
+                              <span className="mt-0.5 w-4 h-4 rounded-full bg-indigo-100 text-indigo-600 font-bold text-[10px] flex items-center justify-center flex-shrink-0">
+                                {i + 1}
+                              </span>
+                              {step}
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    )}
+
+                    {/* ── Advantages (shown only if product has this data) ── */}
+                    {product.advantages && (
+                      <div className="mt-2 mb-3">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                          Advantages
+                        </p>
+                        <ul className="space-y-1">
+                          {product.advantages.map((adv, i) => (
+                            <li key={i} className="flex items-start gap-1.5 text-[11px] text-slate-600">
+                              <span className="text-emerald-500 mt-0.5 flex-shrink-0">✓</span>
+                              {adv}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
                     <button
                       className="cosmetic-card-add-btn"
                       onClick={() => addToCart(product)}
